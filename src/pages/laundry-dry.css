@@ -1,0 +1,244 @@
+﻿.home-scroll__content--laundry-dry {
+  min-height: calc(100% + 320px);
+}
+
+.laundry-dry-header {
+  margin-bottom: 4px;
+}
+
+.laundry-dry-banner {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  margin-top: 18px;
+  margin-bottom: 20px;
+  padding: 10px 16px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 16px 28px rgba(92, 108, 123, 0.08);
+  text-align: center;
+}
+
+.laundry-dry-banner strong {
+  color: #20242b;
+  font-size: 0.96rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.laundry-dry-banner span {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  transform: translateX(-10px);
+  color: #697382;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.laundry-dry-intro-section {
+  margin-top: 6px;
+}
+
+.laundry-dry-hero {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  margin-top: 6px;
+}
+
+.laundry-dry-machine-card {
+  width: min(100%, 272px);
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+}
+
+.laundry-dry-machine-card__image {
+  display: block;
+  width: 115%;
+  aspect-ratio: 16 / 9;
+  border-radius: 18px;
+  object-fit: cover;
+  object-position: center;
+  box-shadow: 0 18px 28px rgba(53, 68, 81, 0.14);
+  transform: translateY(1px);
+}
+
+.laundry-dry-machine-card__date {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #2b3138;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.laundry-dry-machine-card__note {
+  margin: 5px 10px;
+  color: #535d6c;
+  font-size: 0.84rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  text-align: center;
+}
+
+.laundry-dry-hero + .timing-section {
+  margin-top: -15px;
+}
+
+
+
+.laundry-dry-recommend-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.78fr);
+  gap: 12px;
+}
+
+.laundry-dry-recommend-card {
+  display: grid;
+  gap: 2px;
+  min-height: 84px;
+  padding: 8px 14px 5px;
+  align-content: center;
+  justify-items: center;
+  text-align: center;
+  transform: translateY(22px);
+}
+
+.laundry-dry-recommend-card__eyebrow {
+  color: #5e6775;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+
+.laundry-dry-recommend-card strong {
+  margin-top: 0;
+  color: #171b21;
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  line-height: 0.95;
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+
+.laundry-dry-recommend-card--method,
+.laundry-dry-recommend-card--level {
+  align-content: start;
+  padding-top: 13px;
+}
+
+.laundry-dry-recommend-card--method {
+  position: relative;
+  padding-left: 68px;
+}
+
+.laundry-dry-recommend-card__icon-image {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  width: 42px;
+  height: 42px;
+  transform: translateY(-50%);
+  object-fit: contain;
+}
+
+.laundry-dry-reason-card,
+.laundry-dry-weather-summary-card,
+.laundry-dry-air-card {
+  padding: 12px 16px;
+}
+
+.laundry-dry-weather-summary-card__icon {
+  display: block;
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.laundry-dry-air-card {
+  grid-template-columns: auto auto 1fr;
+  column-gap: 16px;
+}
+
+.laundry-dry-air-card__icon-image {
+  display: block;
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.laundry-dry-air-card__label {
+  color: #7a8491;
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+}
+
+.laundry-dry-air-card__copy {
+  display: grid;
+  gap: 2px;
+}
+
+.laundry-dry-air-card__copy span {
+  color: #22262c;
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.03em;
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+
+.laundry-dry-routine-card {
+  min-width: 164px;
+}
+
+.laundry-dry-routine-card__icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #fff3df;
+}
+
+.laundry-dry-routine-card__icon::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  border: 2px solid #ff951c;
+  border-radius: 50%;
+}
+
+.laundry-dry-routine-card__icon::after {
+  content: "";
+  position: absolute;
+  width: 2px;
+  height: 6px;
+  top: 10px;
+  left: 16px;
+  border-radius: 999px;
+  background: #ff951c;
+  box-shadow: 4px 4px 0 -1px #ff951c;
+}
+
+
+
+
+
+
+.laundry-dry-reason-section {
+  margin-top: 40px;
+}
+
+

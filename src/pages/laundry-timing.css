@@ -50,8 +50,8 @@
 
 .timing-washer-card__date {
   position: absolute;
-  top: 18px;
-  left: 16px;
+  top: 16px;
+  left: 12px;
   z-index: 3;
   padding: 7px 12px;
   border-radius: 999px;
@@ -87,7 +87,7 @@
 }
 
 .timing-washer-card__badge strong {
-  font-size: 2rem;
+  font-size: 1.84rem;
   font-weight: 800;
   letter-spacing: -0.06em;
   transform: translateY(20px);
@@ -112,7 +112,7 @@
 .timing-guide-card,
 .timing-routine-card {
   border-radius: 22px;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 1);
   box-shadow: 0 16px 28px rgba(92, 108, 123, 0.08);
 }
 
@@ -126,6 +126,7 @@
   height: 132px;
   padding: 12px 10px;
   border-radius: 50%;
+  background: rgba(255, 255, 255, 0.72);
   text-align: center;
 }
 
@@ -195,6 +196,10 @@
   margin-top: 24px;
 }
 
+.timing-section--compact {
+  margin-top: 14px;
+}
+
 .timing-summary-card {
   padding: 16px 18px;
 }
@@ -202,14 +207,15 @@
 .timing-summary-card--center {
   display: grid;
   justify-items: center;
-  gap: 8px;
+  gap: 4px;
+  padding: 10px 16px;
   text-align: center;
 }
 
 .timing-summary-card--center strong,
 .timing-summary-card--recommend strong {
   color: #1a1d22;
-  font-size: 1.16rem;
+  font-size: 1.14rem;
   font-weight: 800;
   letter-spacing: -0.05em;
 }
@@ -217,32 +223,93 @@
 .timing-summary-card--center span,
 .timing-summary-card--recommend span {
   color: #3b424c;
-  font-size: 0.98rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+}
+
+.timing-summary-card--inline {
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+
+.timing-summary-card__inline-copy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.timing-summary-card__inline-copy strong {
+  color: #1a1d22;
+  font-size: 1.08rem;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+}
+
+.timing-summary-card__inline-copy span {
+  color: #3b424c;
+  font-size: 0.86rem;
   font-weight: 600;
   letter-spacing: -0.035em;
 }
 
 .timing-recommend-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
   gap: 12px;
+  align-items: stretch;
 }
 
 .timing-summary-card--recommend {
   display: grid;
-  justify-items: center;
-  min-height: 102px;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 88px;
+  padding: 12px 14px;
   align-content: center;
+  justify-items: center;
   text-align: center;
 }
 
+.timing-summary-card--with-emoji {
+  position: relative;
+  flex: 1.5 1 0;
+  justify-items: start;
+  min-height: 96px;
+  align-content: center;
+  padding: 12px 16px 12px 62px;
+  overflow: visible;
+  text-align: left;
+}
+
+.timing-summary-card__emoji {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  display: block;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  transform: translateY(-50%);
+}
+
+.timing-summary-card--level {
+  flex: 0.88 1 0;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
 .timing-summary-card--recommend strong {
-  font-size: 2rem;
-  line-height: 1;
+  font-size: 1.68rem;
+  line-height: 0.95;
+  white-space: nowrap;
 }
 
 .timing-summary-card--level strong {
-  font-size: 2.2rem;
+  font-size: 1.68rem;
+  line-height: 0.95;
 }
 
 .timing-summary-card--reason,
@@ -252,7 +319,7 @@
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: center;
-  gap: 12px;
+  gap: 18px;
 }
 
 .timing-summary-card--reason {
@@ -267,6 +334,8 @@
   font-size: 0.95rem;
   line-height: 1.45;
   letter-spacing: -0.035em;
+  word-break: keep-all;
+  overflow-wrap: normal;
 }
 
 .timing-info-icon,
@@ -289,9 +358,43 @@
 }
 
 .timing-drop-icon {
-  background: #72a9f7;
-  color: #ffffff;
-  font-size: 1.2rem;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: transparent;
+  border-radius: 0;
+  font-size: 1.85rem;
+  line-height: 1;
+}
+
+.timing-drop-icon--humidity {
+  color: #72a9f7;
+}
+
+.timing-drop-icon--rain {
+  color: #5b87f7;
+}
+
+.timing-drop-icon--sunny {
+  color: #ffb547;
+}
+
+.timing-drop-icon--cloudy {
+  color: #98a4b8;
+}
+
+.timing-drop-icon--wind {
+  color: #7cb7d9;
+}
+
+.timing-drop-icon--storm {
+  color: #7b6cff;
+}
+
+.timing-drop-icon--snow {
+  color: #8ec5ff;
 }
 
 .timing-guide-list {
@@ -310,14 +413,17 @@
 }
 
 .timing-routine-card {
-  min-width: 144px;
-  padding: 12px 14px;
+  min-width: 164px;
+  padding: 12px 14px 12px 11px;
   border: none;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 1);
   color: #1e232a;
   font-size: 0.92rem;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: -0.03em;
+  gap: 10px;
+  justify-items: start;
+  text-align: left;
 }
 
 .timing-routine-card__icon {
@@ -325,3 +431,27 @@
   color: #ff951c;
   font-size: 1rem;
 }
+
+.section-kicker__accent {
+  color: #ff5a55;
+}
+
+.timing-summary-card--with-emoji > span:not(.timing-summary-card__emoji) {
+  justify-self: center;
+  width: 100%;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.timing-summary-card--level strong {
+  margin-top: 8px;
+}
+
+.timing-summary-card--with-emoji strong {
+  justify-self: center;
+  width: 100%;
+  margin-top: 8px;
+  text-align: center;
+}
+
+

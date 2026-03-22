@@ -22,6 +22,11 @@ const menuGroups = [
   },
 ];
 
+const externalLinks = {
+  store: "https://www.lge.co.kr/benefits/exhibitions/detail-PE00385001?eventCode=aoexngdn&utm_source=gdn&utm_medium=banner&utm_campaign=20230701_pmax_feed_ao_only_pp&utm_content=gdn_pmax_feed_pur_ao_nt&utm_term=google_pmax_ao&gad_source=1&gad_campaignid=20361266572&gbraid=0AAAAABWck5ePnH-ABUPzOl1sfobg5BroS&gclid=Cj0KCQjwpv7NBhCzARIsADkIfWxDoCaWlBP6Ye-pkEHof2FYRPV_VztyC-VQcdYKDELPrlQ5xfFOwdMaAvtUEALw_wcB",
+  subscription: "https://www.lge.co.kr/care-solutions",
+};
+
 const footerLinks = [
   "LGE.COM",
   "LG전자 멤버십",
@@ -61,13 +66,23 @@ function QuickIcon({ type }) {
   );
 }
 
-function MenuListIcon({ type }) {
+function MenuListIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <circle cx="12" cy="12" r="8.2" />
       <path d="M12 7.6v4.7h3.7" />
     </svg>
   );
+}
+
+function openExternalLink(type) {
+  const targetUrl = externalLinks[type];
+
+  if (!targetUrl) {
+    return;
+  }
+
+  window.open(targetUrl, "_blank", "noopener,noreferrer");
 }
 
 function Menu({ onGoBack, onGoHome, onOpenDevice, onOpenCare, onOpenMyPage }) {
@@ -111,12 +126,12 @@ function Menu({ onGoBack, onGoHome, onOpenDevice, onOpenCare, onOpenMyPage }) {
               <h2 className="menu-group__title">{group.label}</h2>
               <div className="menu-list">
                 {group.items.map((item) => (
-                  <button key={item.title} type="button" className="menu-list-card">
+                  <button key={item.title} type="button" className="menu-list-card" onClick={() => openExternalLink(item.type)}>
                     <span className={`menu-list-card__icon menu-list-card__icon--${item.type}`}>
                       {item.image ? (
                         <img src={item.image} alt="" className="menu-list-card__image" />
                       ) : (
-                        <MenuListIcon type={item.type} />
+                        <MenuListIcon />
                       )}
                     </span>
                     <span className="menu-list-card__content">
@@ -152,7 +167,3 @@ function Menu({ onGoBack, onGoHome, onOpenDevice, onOpenCare, onOpenMyPage }) {
 }
 
 export default Menu;
-
-
-
-

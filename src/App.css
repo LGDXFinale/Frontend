@@ -11,7 +11,7 @@
   width: min(100vw, 390px);
   height: min(100dvh, 844px);
   overflow: hidden;
-  background: #edf4bd;
+  background:`r`n    radial-gradient(circle at 78% 92%, rgba(179, 244, 229, 0.45), transparent 28%),`r`n    linear-gradient(180deg, #d0e2f4 0%, #d7e7f3 38%, #e7f0f1 66%, #d7f1ed 100%);
 }
 
 .screen-layer {
@@ -42,7 +42,7 @@
 .splash-layer.is-exiting {
   opacity: 0;
   transform: scale(1.02);
-  filter: blur(8px);
+  filter: blur(0.8px);
   pointer-events: none;
 }
 
@@ -320,3 +320,51 @@
     bottom: 14px;
   }
 }
+
+.page-shell {
+  width: 100%;
+  height: 100%;
+  will-change: transform, opacity, filter;
+}
+
+.page-shell--forward {
+  animation: page-enter-forward 720ms cubic-bezier(0.18, 0.9, 0.22, 1) both;
+}
+
+.page-shell--back {
+  animation: page-enter-back 660ms cubic-bezier(0.18, 0.9, 0.22, 1) both;
+}
+
+@keyframes page-enter-forward {
+  0% {
+    opacity: 0;
+    transform: translateX(6px) scale(0.998);
+    filter: blur(0.8px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes page-enter-back {
+  0% {
+    opacity: 0;
+    transform: translateX(-5px) scale(0.999);
+    filter: blur(0.5px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+
+
+
+
+
