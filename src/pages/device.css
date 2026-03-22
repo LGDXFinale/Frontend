@@ -1,0 +1,157 @@
+﻿.home-scroll__content--device {
+  min-height: calc(100% + 80px);
+}
+
+.device-section {
+  margin-top: 28px;
+}
+
+.device-register-card {
+  width: 100%;
+  min-height: 170px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  border: none;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 18px 28px rgba(92, 108, 123, 0.08);
+  padding-top: 20px;
+}
+
+.device-register-card__plus {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #6880ff 0%, #5a6df0 100%);
+}
+
+.device-register-card__plus::before,
+.device-register-card__plus::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 18px;
+  height: 2.5px;
+  border-radius: 999px;
+  background: #ffffff;
+  transform: translate(-50%, -50%);
+}
+
+.device-register-card__plus::after {
+  width: 2.5px;
+  height: 18px;
+}
+
+.device-register-card__label {
+  color: #111111;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.device-section__title {
+  margin: 0 0 14px;
+  color: #545c64;
+  font-size: 0.98rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.favorite-device-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 14px;
+}
+
+.favorite-device-card {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+
+.favorite-device-card__tile {
+  width: 100%;
+  min-height: 104px;
+  display: grid;
+  place-items: center;
+  border: 1px dashed rgba(158, 170, 184, 0.85);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.favorite-device-card__icon {
+  position: relative;
+  width: 54px;
+  height: 66px;
+}
+
+.favorite-device-card__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.favorite-device-card__icon--washer .favorite-device-card__image,
+.favorite-device-card__icon--dryer .favorite-device-card__image {
+  width: 54px;
+  height: 66px;
+}
+
+.favorite-device-card__icon--aircon {
+  width: 62px;
+  height: 96px;
+}
+
+.favorite-device-card__icon--aircon .favorite-device-card__image {
+  width: 62px;
+  height: 96px;
+}
+
+.favorite-device-card__icon--purifier {
+  width: 30px;
+  height: 68px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #f4f5f2 0%, #dde2de 100%);
+  box-shadow: 0 0 0 1px rgba(177, 186, 194, 0.42);
+}
+
+.favorite-device-card__icon--purifier::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 5px;
+  width: 14px;
+  height: 14px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  border: 3px solid #525d65;
+}
+
+.favorite-device-card__icon--purifier::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 2px;
+  width: 38px;
+  height: 24px;
+  transform: translateX(-50%);
+  background:
+    radial-gradient(circle at 0 50%, rgba(97, 242, 236, 0.8) 0 2px, transparent 3px),
+    radial-gradient(circle at 100% 50%, rgba(97, 242, 236, 0.8) 0 2px, transparent 3px),
+    radial-gradient(circle at 50% 0, rgba(97, 242, 236, 0.8) 0 2px, transparent 3px),
+    radial-gradient(circle at 50% 100%, rgba(97, 242, 236, 0.8) 0 2px, transparent 3px);
+}
+
+.favorite-device-card__label {
+  margin: 0;
+  color: #111111;
+  font-size: 0.92rem;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
