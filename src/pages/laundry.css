@@ -51,8 +51,9 @@
 }
 
 .laundry-story-card--2 .laundry-story-card__image {
-  transform: scale(1.22);
+  transform: scale(1.08);
   transform-origin: center top;
+  object-position: 0% 58%;
 }
 
 .laundry-story-card--3 .laundry-story-card__image {

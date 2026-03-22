@@ -20,8 +20,12 @@ const weatherImageMap = {
 };
 
 const currentBasketLabel = "\uBC14\uAD6C\uB2C8 \uC801\uC7AC\uB7C9";
-const predictedSummaryLabel = "\uC608\uC0C1 \uC801\uC7AC\uB7C9/\uC801\uC7AC\uC728";
+const currentSummaryLabel = "\uD604\uC7AC \uC801\uC7AC\uB7C9";
+const currentLoadRatioLabel = "\uD604\uC7AC \uC801\uC7AC\uC728";
+const predictedSummaryPrefixLabel = "48\uC2DC\uAC04 \uB4A4";
+const predictedSummarySuffixLabel = "\uC608\uC0C1 \uC801\uC7AC\uB7C9";
 const predictedLoadRatioLabel = "\uC608\uC0C1 \uC801\uC7AC\uC728";
+const washerInnerLabel = "\uB0B4\uBD80 \uC801\uC7AC\uB7C9";
 
 function buildRecommendationUrl(householdSize, userLocation) {
   const params = new URLSearchParams({
@@ -99,6 +103,40 @@ function getWeatherPresentation(recommendation) {
   return { src: weatherImageMap.sunny, label: "맑음" };
 }
 
+function getWeatherSummaryIndicator(recommendation) {
+  const weatherText = `${recommendation.weather_summary ?? ""} ${recommendation.weather?.weather_summary ?? ""}`;
+
+  if (/\uB208|\uC9C4\uB208\uAE68\uBE44/.test(weatherText)) {
+    return { icon: "\u2744", tone: "snow" };
+  }
+
+  if (/\uCC9C\uB465|\uB1CC\uC6B0|\uBC88\uAC1C/.test(weatherText)) {
+    return { icon: "\u26A1", tone: "storm" };
+  }
+
+  if (/\uBC14\uB78C|\uAC15\uD48D/.test(weatherText)) {
+    return { icon: "\uD83C\uDF00", tone: "wind" };
+  }
+
+  if (recommendation.rain_expected || /\uBE44|\uC18C\uB098\uAE30/.test(weatherText)) {
+    return { icon: "\u2614", tone: "rain" };
+  }
+
+  if (recommendation.high_humidity || /\uC2B5\uB3C4|\uC2B5\uD568/.test(weatherText)) {
+    return { icon: "\uD83D\uDCA7", tone: "humidity" };
+  }
+
+  if (recommendation.weather?.outdoor_drying_friendly || /\uB9D1\uC74C|\uAC74\uC870|\uD654\uCC3D/.test(weatherText)) {
+    return { icon: "\u2600", tone: "sunny" };
+  }
+
+  if (/\uAD6C\uB984|\uD750\uB9BC/.test(weatherText)) {
+    return { icon: "\u2601", tone: "cloudy" };
+  }
+
+  return { icon: "\u2601", tone: "cloudy" };
+}
+
 function extractDetailedAreaLabel(userLocation) {
   if (!userLocation) {
     return "";
@@ -107,7 +145,7 @@ function extractDetailedAreaLabel(userLocation) {
   const detail = userLocation.detail ?? "";
   const label = userLocation.label ?? "";
   const sourceText = `${label} ${detail}`;
-  const match = sourceText.match(/([?-?]+?)\s*([?-?0-9]+?)?/);
+  const match = sourceText.match(/([\uAC00-\uD7A3]+\uAD6C)\s*([\uAC00-\uD7A30-9]+\uB3D9)?/);
 
   if (!match) {
     return label;
@@ -198,10 +236,14 @@ function LaundryTiming({
 
   const guideItems = recommendation ? getGuideItems(recommendation) : [];
   const weatherPresentation = recommendation ? getWeatherPresentation(recommendation) : null;
+  const weatherSummaryIndicator = recommendation ? getWeatherSummaryIndicator(recommendation) : null;
   const recommendationDateLabel = recommendation ? formatRecommendationDate(recommendation.generated_at) : "";
   const weatherLocationLabel = recommendation ? getWeatherLocationLabel(recommendation, userLocation) : "";
   const currentBasketWeightKg = recommendation
-    ? recommendation.current_load?.basket_sensor_weight_kg ?? recommendation.current_load?.current_weight ?? recommendation.current_weight
+    ? recommendation.current_load?.basket_weight_kg ?? recommendation.current_load?.basket_sensor_weight_kg ?? 0
+    : 0;
+  const washerInnerWeightKg = recommendation
+    ? recommendation.current_load?.washer_inner_weight_kg ?? Math.max(recommendation.current_weight - currentBasketWeightKg, 0)
     : 0;
 
   return (
@@ -228,7 +270,7 @@ function LaundryTiming({
                   <img src="/real_wash.png" alt="세탁기" className="timing-washer-card__image" />
                   <div className="timing-washer-card__badge">
                     <strong>세탁전</strong>
-                    <span>적재량 : {formatPercent(recommendation.load_ratio)}</span>
+                    <span>{washerInnerLabel} : {formatKg(washerInnerWeightKg)}</span>
                   </div>
                 </article>
 
@@ -251,19 +293,30 @@ function LaundryTiming({
               </section>
 
               <section className="timing-section">
-                <p className="section-kicker">{predictedSummaryLabel}</p>
-                <article className="timing-summary-card timing-summary-card--center">
-                  <strong>
-                    {formatKg(recommendation.future_load_prediction.predicted_weight_kg)} / {formatKg(recommendation.washer_capacity)}
-                  </strong>
-                  <span>{predictedLoadRatioLabel} : {formatPercent(recommendation.future_load_prediction.predicted_load_ratio)}</span>
+                <p className="section-kicker">{currentSummaryLabel}</p>
+                <article className="timing-summary-card timing-summary-card--center timing-summary-card--inline">
+                  <p className="timing-summary-card__inline-copy">
+                    <strong>{formatKg(recommendation.current_weight)} / {formatKg(recommendation.washer_capacity)}</strong>
+                    <span>{currentLoadRatioLabel} : {formatPercent(recommendation.load_ratio)}</span>
+                  </p>
+                </article>
+              </section>
+
+              <section className="timing-section timing-section--compact">
+                <p className="section-kicker"><span className="section-kicker__accent">{predictedSummaryPrefixLabel}</span> {predictedSummarySuffixLabel}</p>
+                <article className="timing-summary-card timing-summary-card--center timing-summary-card--inline">
+                  <p className="timing-summary-card__inline-copy">
+                    <strong>{formatKg(recommendation.future_load_prediction.predicted_weight_kg)} / {formatKg(recommendation.washer_capacity)}</strong>
+                    <span>{predictedLoadRatioLabel} : {formatPercent(recommendation.future_load_prediction.predicted_load_ratio)}</span>
+                  </p>
                 </article>
               </section>
 
               <section className="timing-section">
                 <p className="section-kicker">세탁 타이밍 추천</p>
                 <div className="timing-recommend-grid">
-                  <article className="timing-summary-card timing-summary-card--recommend">
+                  <article className="timing-summary-card timing-summary-card--recommend timing-summary-card--with-emoji">
+                    <img src="/t.png" alt="" className="timing-summary-card__emoji" />
                     <span>언제 세탁할까?</span>
                     <strong>{recommendation.execution_window}</strong>
                   </article>

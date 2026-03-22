@@ -3,6 +3,8 @@ import Start from "./pages/start";
 import Home from "./pages/home";
 import Laundry from "./pages/laundry";
 import LaundryTiming from "./pages/laundry-timing";
+import LaundryProgress from "./pages/laundry-progress";
+import LaundryDry from "./pages/laundry-dry";
 import Device from "./pages/device";
 import Care from "./pages/care";
 import Menu from "./pages/menu";
@@ -13,8 +15,8 @@ const SPLASH_DELAY_MS = 2000;
 const TRANSITION_DURATION_MS = 700;
 
 const DEFAULT_LOCATION = {
-  label: "위치 미설정",
-  detail: "마이페이지에서 현재 위치를 설정해보세요.",
+  label: "\uC704\uCE58 \uBBF8\uC124\uC815",
+  detail: "\uB9C8\uC774\uD398\uC774\uC9C0\uC5D0\uC11C \uD604\uC7AC \uC704\uCE58\uB97C \uC124\uC815\uD574\uBCF4\uC138\uC694.",
   latitude: null,
   longitude: null,
   source: "manual",
@@ -25,7 +27,9 @@ function App() {
   const [phase, setPhase] = useState("start");
   const [page, setPage] = useState("home");
   const [previousPage, setPreviousPage] = useState("home");
-  const [profileName, setProfileName] = useState("피날레");
+  const [pageDirection, setPageDirection] = useState("forward");
+  const [pageTransitionKey, setPageTransitionKey] = useState(0);
+  const [profileName, setProfileName] = useState("\uD53C\uB0A0\uB808");
   const [householdSize, setHouseholdSize] = useState(3);
   const [shareDeviceStatus, setShareDeviceStatus] = useState(false);
   const [userLocation, setUserLocation] = useState(DEFAULT_LOCATION);
@@ -47,22 +51,146 @@ function App() {
     };
   }, []);
 
-  const goToPage = (nextPage) => {
+  const moveToPage = (nextPage, direction) => {
     if (nextPage === page) {
       return;
     }
 
-    setPreviousPage(page);
+    if (direction === "forward") {
+      setPreviousPage(page);
+    }
+
+    setPageDirection(direction);
     setPage(nextPage);
+    setPageTransitionKey((current) => current + 1);
+  };
+
+  const goToPage = (nextPage) => {
+    moveToPage(nextPage, "forward");
   };
 
   const goBack = () => {
-    setPage(previousPage === page ? "home" : previousPage);
+    const nextPage = previousPage === page ? "home" : previousPage;
+    moveToPage(nextPage, "back");
   };
 
   const openMenu = () => {
     goToPage("menu");
   };
+
+  let currentPage = null;
+
+  if (page === "home") {
+    currentPage = (
+      <Home
+        profileName={profileName}
+        onOpenLaundry={() => goToPage("laundry")}
+        onOpenDevice={() => goToPage("device")}
+        onOpenCare={() => goToPage("care")}
+        onOpenMenu={openMenu}
+      />
+    );
+  } else if (page === "laundry") {
+    currentPage = (
+      <Laundry
+        profileName={profileName}
+        onGoBack={goBack}
+        onGoHome={() => goToPage("home")}
+        onOpenDevice={() => goToPage("device")}
+        onOpenCare={() => goToPage("care")}
+        onOpenMenu={openMenu}
+        onOpenTiming={() => goToPage("laundry-timing")}
+        onOpenProgress={() => goToPage("laundry-progress")}
+        onOpenDry={() => goToPage("laundry-dry")}
+      />
+    );
+  } else if (page === "laundry-timing") {
+    currentPage = (
+      <LaundryTiming
+        profileName={profileName}
+        householdSize={householdSize}
+        userLocation={userLocation}
+        onGoBack={goBack}
+        onGoHome={() => goToPage("home")}
+        onOpenDevice={() => goToPage("device")}
+        onOpenCare={() => goToPage("care")}
+        onOpenMenu={openMenu}
+      />
+    );
+  } else if (page === "laundry-progress") {
+    currentPage = (
+      <LaundryProgress
+        profileName={profileName}
+        householdSize={householdSize}
+        userLocation={userLocation}
+        onGoBack={goBack}
+        onGoHome={() => goToPage("home")}
+        onOpenDevice={() => goToPage("device")}
+        onOpenCare={() => goToPage("care")}
+        onOpenMenu={openMenu}
+      />
+    );
+  } else if (page === "laundry-dry") {
+    currentPage = (
+      <LaundryDry
+        profileName={profileName}
+        householdSize={householdSize}
+        userLocation={userLocation}
+        onGoBack={goBack}
+        onGoHome={() => goToPage("home")}
+        onOpenDevice={() => goToPage("device")}
+        onOpenCare={() => goToPage("care")}
+        onOpenMenu={openMenu}
+      />
+    );
+  } else if (page === "device") {
+    currentPage = (
+      <Device
+        profileName={profileName}
+        onGoBack={goBack}
+        onGoHome={() => goToPage("home")}
+        onOpenCare={() => goToPage("care")}
+        onOpenMenu={openMenu}
+      />
+    );
+  } else if (page === "care") {
+    currentPage = (
+      <Care
+        onGoBack={goBack}
+        onGoHome={() => goToPage("home")}
+        onOpenDevice={() => goToPage("device")}
+        onOpenMenu={openMenu}
+      />
+    );
+  } else if (page === "mypage") {
+    currentPage = (
+      <MyPage
+        profileName={profileName}
+        householdSize={householdSize}
+        shareDeviceStatus={shareDeviceStatus}
+        userLocation={userLocation}
+        onChangeProfileName={setProfileName}
+        onChangeUserLocation={setUserLocation}
+        onChangeHouseholdSize={setHouseholdSize}
+        onToggleShareDeviceStatus={() => setShareDeviceStatus((current) => !current)}
+        onGoBack={goBack}
+        onGoHome={() => goToPage("home")}
+        onOpenDevice={() => goToPage("device")}
+        onOpenCare={() => goToPage("care")}
+        onOpenMenu={() => setPage("menu")}
+      />
+    );
+  } else {
+    currentPage = (
+      <Menu
+        onGoBack={goBack}
+        onGoHome={() => goToPage("home")}
+        onOpenDevice={() => goToPage("device")}
+        onOpenCare={() => goToPage("care")}
+        onOpenMyPage={() => goToPage("mypage")}
+      />
+    );
+  }
 
   return (
     <main className="app">
@@ -80,75 +208,9 @@ function App() {
         </div>
 
         <div className={`screen-layer home-layer ${phase !== "start" ? "is-visible" : ""}`}>
-          {page === "home" ? (
-            <Home
-              profileName={profileName}
-              onOpenLaundry={() => goToPage("laundry")}
-              onOpenDevice={() => goToPage("device")}
-              onOpenCare={() => goToPage("care")}
-              onOpenMenu={openMenu}
-            />
-          ) : page === "laundry" ? (
-            <Laundry
-              profileName={profileName}
-              onGoBack={goBack}
-              onGoHome={() => goToPage("home")}
-              onOpenDevice={() => goToPage("device")}
-              onOpenCare={() => goToPage("care")}
-              onOpenMenu={openMenu}
-              onOpenTiming={() => goToPage("laundry-timing")}
-            />
-          ) : page === "laundry-timing" ? (
-            <LaundryTiming
-              profileName={profileName}
-              householdSize={householdSize}
-              userLocation={userLocation}
-              onGoBack={goBack}
-              onGoHome={() => goToPage("home")}
-              onOpenDevice={() => goToPage("device")}
-              onOpenCare={() => goToPage("care")}
-              onOpenMenu={openMenu}
-            />
-          ) : page === "device" ? (
-            <Device
-              profileName={profileName}
-              onGoBack={goBack}
-              onGoHome={() => goToPage("home")}
-              onOpenCare={() => goToPage("care")}
-              onOpenMenu={openMenu}
-            />
-          ) : page === "care" ? (
-            <Care
-              onGoBack={goBack}
-              onGoHome={() => goToPage("home")}
-              onOpenDevice={() => goToPage("device")}
-              onOpenMenu={openMenu}
-            />
-          ) : page === "mypage" ? (
-            <MyPage
-              profileName={profileName}
-              householdSize={householdSize}
-              shareDeviceStatus={shareDeviceStatus}
-              userLocation={userLocation}
-              onChangeProfileName={setProfileName}
-              onChangeUserLocation={setUserLocation}
-              onChangeHouseholdSize={setHouseholdSize}
-              onToggleShareDeviceStatus={() => setShareDeviceStatus((current) => !current)}
-              onGoBack={goBack}
-              onGoHome={() => goToPage("home")}
-              onOpenDevice={() => goToPage("device")}
-              onOpenCare={() => goToPage("care")}
-              onOpenMenu={() => setPage("menu")}
-            />
-          ) : (
-            <Menu
-              onGoBack={goBack}
-              onGoHome={() => goToPage("home")}
-              onOpenDevice={() => goToPage("device")}
-              onOpenCare={() => goToPage("care")}
-              onOpenMyPage={() => goToPage("mypage")}
-            />
-          )}
+          <div key={`${page}-${pageTransitionKey}`} className={`page-shell page-shell--${pageDirection}`}>
+            {currentPage}
+          </div>
         </div>
       </div>
     </main>

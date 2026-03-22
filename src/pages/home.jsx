@@ -40,6 +40,10 @@ function Home({ profileName, onOpenLaundry, onOpenDevice, onOpenCare, onOpenMenu
                 <p>세탁, 걱정없이 한 큐에 해결해요</p>
               </div>
             </button>
+
+            <article className="home-photo-card">
+              <img src="/home.png" alt="홈 미리보기" className="home-photo-card__image" />
+            </article>
           </section>
         </div>
       </div>
@@ -50,7 +54,4 @@ function Home({ profileName, onOpenLaundry, onOpenDevice, onOpenCare, onOpenMenu
 }
 
 export default Home;
-
-
-
 

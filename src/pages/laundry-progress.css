@@ -1,0 +1,157 @@
+﻿.home-scroll__content--laundry-progress {
+  min-height: calc(100% + 260px);
+}
+
+.laundry-progress-header {
+  margin-bottom: 6px;
+}
+
+.laundry-progress-title {
+  font-size: 1.65rem;
+}
+
+.laundry-progress-hero {
+  margin-top: 18px;
+  margin-bottom: -8px;
+}
+
+.timing-washer-card__badge--progress strong {
+  font-size: 1.82rem;
+}
+
+.timing-washer-card__badge--progress span {
+  margin-top: 6px;
+  font-size: 0.92rem;
+}
+
+.laundry-progress-side-column {
+  justify-items: center;
+}
+
+.laundry-progress-basket {
+  display: block;
+  width: 118px;
+  height: 146px;
+  margin-top: 38px;
+  object-fit: contain;
+}
+
+.laundry-progress-summary-card {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 14px 18px;
+  text-align: center;
+}
+
+.laundry-progress-summary-card strong,
+.laundry-progress-mini-card strong,
+.laundry-progress-alert-card__copy strong {
+  color: #1a1d22;
+  font-size: 1.04rem;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+}
+
+.laundry-progress-summary-card span,
+.laundry-progress-mini-card__label,
+.laundry-progress-alert-card__copy span {
+  color: #515a67;
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.laundry-progress-status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.laundry-progress-mini-card {
+  display: grid;
+  min-height: 104px;
+  padding: 14px 14px 16px;
+  align-content: center;
+  justify-items: center;
+  text-align: center;
+}
+
+.laundry-progress-mini-card__icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-bottom: 6px;
+  border-radius: 50%;
+  background: #fff3df;
+  color: #ff951c;
+  font-size: 0.98rem;
+  line-height: 1;
+}
+
+.laundry-progress-mini-card strong {
+  font-size: 1.76rem;
+  line-height: 1;
+}
+
+.laundry-progress-alert-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 9px;
+  padding: 16px;
+}
+
+.laundry-progress-alert-card__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-left: 12px;
+  border-radius: 50%;
+  background: #fff4de;
+  font-size: 1.72rem;
+  line-height: 1;
+}
+
+.laundry-progress-alert-card__copy {
+  display: grid;
+  gap: 5px;
+  justify-items: start;
+  text-align: left;
+  margin-left: 6px;
+}
+
+.laundry-progress-alert-card__copy strong {
+  font-size: 1.28rem;
+  line-height: 1.1;
+}
+
+.laundry-progress-alert-card__copy span {
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.laundry-progress-routine-card {
+  min-width: 164px;
+}
+
+.laundry-progress-mini-card__icon-image {
+  display: block;
+  width: 28px;
+  height: 28px;
+  margin-bottom: 6px;
+  object-fit: contain;
+}
+
+
+
+
+
+
+.laundry-progress-hero + .timing-section {
+  margin-top: 14px;
+}
+
+

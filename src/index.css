@@ -5,7 +5,7 @@
   line-height: 1.5;
   font-weight: 400;
   color: #102a43;
-  background: #889170;
+  background: linear-gradient(180deg, #e6eef7 0%, #ecf2f8 38%, #f5f8fa 66%, #eef7f5 100%);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -26,6 +26,7 @@ body,
 
 body {
   margin: 0;
+  background: linear-gradient(180deg, #e6eef7 0%, #ecf2f8 38%, #f5f8fa 66%, #eef7f5 100%);
 }
 
 button,

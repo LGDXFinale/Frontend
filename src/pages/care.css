@@ -269,6 +269,10 @@
   padding: 20px 22px 22px;
 }
 
+.care-card--report + .care-card--report {
+  margin-top: 14px;
+}
+
 .care-card__label {
   margin: 0 0 10px;
   color: #68707a;
