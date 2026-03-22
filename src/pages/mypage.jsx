@@ -1,4 +1,5 @@
 ﻿import { useEffect, useRef, useState } from "react";
+import "./mypage.css";
 import { BottomNav, useScrollBounce } from "../components/mobile-ui";
 
 const householdOptions = Array.from({ length: 10 }, (_, index) => index + 1);
@@ -29,11 +30,68 @@ function ChevronIcon() {
   );
 }
 
+function formatLocationUpdatedAt(updatedAt) {
+  if (!updatedAt) {
+    return "";
+  }
+
+  const parsedDate = new Date(updatedAt);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return "";
+  }
+
+  return new Intl.DateTimeFormat("ko-KR", {
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(parsedDate);
+}
+
+
+async function reverseGeocodeLocation(latitude, longitude) {
+  const params = new URLSearchParams({
+    format: "jsonv2",
+    lat: String(latitude),
+    lon: String(longitude),
+    zoom: "18",
+    addressdetails: "1",
+    "accept-language": "ko",
+  });
+
+  const response = await fetch(`https://nominatim.openstreetmap.org/reverse?${params.toString()}`);
+
+  if (!response.ok) {
+    throw new Error(`reverse geocode ${response.status}`);
+  }
+
+  const result = await response.json();
+  const address = result.address ?? {};
+  const district = address.city_district || address.borough || address.county || address.city || address.state_district || "";
+  const neighborhood = address.suburb || address.neighbourhood || address.quarter || address.hamlet || address.village || address.town || "";
+  const label = [district, neighborhood].filter(Boolean).join(" ").trim();
+  const detail = result.display_name
+    ? result.display_name
+        .split(",")
+        .map((token) => token.trim())
+        .slice(0, 3)
+        .join(" ")
+    : `위도 ${latitude.toFixed(4)}, 경도 ${longitude.toFixed(4)}`;
+
+  return {
+    label: label || "현재 위치",
+    detail,
+  };
+}
+
 function MyPage({
   profileName,
   householdSize,
   shareDeviceStatus,
+  userLocation,
   onChangeProfileName,
+  onChangeUserLocation,
   onChangeHouseholdSize,
   onToggleShareDeviceStatus,
   onGoBack,
@@ -45,15 +103,23 @@ function MyPage({
   const scrollRef = useRef(null);
   const contentRef = useRef(null);
   const pickerRefs = useRef([]);
-  const [isNameEditorOpen, setIsNameEditorOpen] = useState(false);
+  const [isProfileEditorOpen, setIsProfileEditorOpen] = useState(false);
   const [isHouseholdPickerOpen, setIsHouseholdPickerOpen] = useState(false);
   const [nameDraft, setNameDraft] = useState(profileName);
+  const [locationDraft, setLocationDraft] = useState(userLocation);
+  const [locationMessage, setLocationMessage] = useState("");
+  const [locationError, setLocationError] = useState("");
+  const [isLocating, setIsLocating] = useState(false);
 
   useScrollBounce(scrollRef, contentRef);
 
   useEffect(() => {
     setNameDraft(profileName);
   }, [profileName]);
+
+  useEffect(() => {
+    setLocationDraft(userLocation);
+  }, [userLocation]);
 
   useEffect(() => {
     if (!isHouseholdPickerOpen) {
@@ -73,12 +139,75 @@ function MyPage({
     return () => window.clearTimeout(timer);
   }, [householdSize, isHouseholdPickerOpen]);
 
-  const openNameEditor = () => {
+  const openProfileEditor = () => {
     setNameDraft(profileName);
-    setIsNameEditorOpen(true);
+    setLocationDraft(userLocation);
+    setLocationMessage("");
+    setLocationError("");
+    setIsProfileEditorOpen(true);
   };
 
-  const handleNameSave = () => {
+  const handleUseCurrentLocation = () => {
+    if (!("geolocation" in navigator)) {
+      setLocationError("이 브라우저에서는 위치 설정을 지원하지 않아요.");
+      setLocationMessage("");
+      return;
+    }
+
+    setIsLocating(true);
+    setLocationError("");
+    setLocationMessage("");
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const latitude = Number(position.coords.latitude.toFixed(6));
+        const longitude = Number(position.coords.longitude.toFixed(6));
+
+        try {
+          const resolvedLocation = await reverseGeocodeLocation(latitude, longitude);
+
+          setLocationDraft({
+            label: resolvedLocation.label,
+            detail: resolvedLocation.detail,
+            latitude,
+            longitude,
+            source: "gps",
+            updatedAt: new Date().toISOString(),
+          });
+          setLocationMessage("현재 위치를 가져왔어요. 저장해주세요.");
+        } catch {
+          setLocationDraft({
+            label: "현재 위치 사용 중",
+            detail: `위도 ${latitude.toFixed(4)}, 경도 ${longitude.toFixed(4)}`,
+            latitude,
+            longitude,
+            source: "gps",
+            updatedAt: new Date().toISOString(),
+          });
+          setLocationMessage("현재 위치를 가져왔어요. 주소 정보는 확인하지 못해 좌표로 저장해둘게요.");
+        } finally {
+          setIsLocating(false);
+        }
+      },
+      (error) => {
+        const errorMessage =
+          error.code === error.PERMISSION_DENIED
+            ? "위치 권한이 허용되지 않았어요. 권한을 확인해주세요."
+            : "위치 정보를 가져오지 못했어요. 다시 한 번 시도해주세요.";
+
+        setLocationError(errorMessage);
+        setLocationMessage("");
+        setIsLocating(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      },
+    );
+  };
+
+  const handleProfileSave = () => {
     const nextName = nameDraft.trim();
 
     if (!nextName) {
@@ -86,10 +215,12 @@ function MyPage({
     }
 
     onChangeProfileName(nextName);
-    setIsNameEditorOpen(false);
+    onChangeUserLocation(locationDraft);
+    setIsProfileEditorOpen(false);
   };
 
   const profileInitial = profileName.trim().charAt(0) || "P";
+  const locationUpdatedAt = formatLocationUpdatedAt(userLocation.updatedAt);
 
   return (
     <section className="screen mypage-screen" aria-label="마이페이지">
@@ -108,7 +239,7 @@ function MyPage({
             <div className="mypage-profile">
               <div className="mypage-avatar">
                 <span>{profileInitial}</span>
-                <button type="button" className="mypage-avatar__edit" onClick={openNameEditor} aria-label="이름 수정">
+                <button type="button" className="mypage-avatar__edit" onClick={openProfileEditor} aria-label="내 정보 수정">
                   <PencilIcon />
                 </button>
               </div>
@@ -116,11 +247,16 @@ function MyPage({
               <div className="mypage-profile__body">
                 <div className="mypage-profile__name-row">
                   <strong>{profileName}</strong>
-                  <button type="button" className="mypage-inline-edit" onClick={openNameEditor} aria-label="이름 수정">
+                  <button type="button" className="mypage-inline-edit" onClick={openProfileEditor} aria-label="내 정보 수정">
                     <PencilIcon />
                   </button>
                 </div>
-                <button type="button" className="mypage-profile__button" onClick={openNameEditor}>
+                <div className="mypage-profile__meta">
+                  <p className="mypage-profile__location">{userLocation.label}</p>
+                  <p className="mypage-profile__location-detail">{userLocation.detail}</p>
+                  {locationUpdatedAt ? <p className="mypage-profile__location-time">최근 설정 {locationUpdatedAt}</p> : null}
+                </div>
+                <button type="button" className="mypage-profile__button" onClick={openProfileEditor}>
                   내 정보 수정
                 </button>
               </div>
@@ -193,17 +329,20 @@ function MyPage({
         </div>
       </div>
 
-      {isNameEditorOpen ? (
-        <div className="mypage-overlay" role="presentation" onClick={() => setIsNameEditorOpen(false)}>
+      {isProfileEditorOpen ? (
+        <div className="mypage-overlay" role="presentation" onClick={() => setIsProfileEditorOpen(false)}>
           <div
             className="mypage-dialog"
             role="dialog"
             aria-modal="true"
-            aria-label="이름 수정"
+            aria-label="내 정보 수정"
             onClick={(event) => event.stopPropagation()}
           >
-            <p className="mypage-dialog__title">이름 수정</p>
+            <p className="mypage-dialog__title">내 정보 수정</p>
+
+            <label className="mypage-dialog__label" htmlFor="mypage-name-input">이름</label>
             <input
+              id="mypage-name-input"
               className="mypage-dialog__input"
               value={nameDraft}
               maxLength={12}
@@ -211,20 +350,46 @@ function MyPage({
               onChange={(event) => setNameDraft(event.target.value)}
               onKeyDown={(event) => {
                 if (event.key === "Enter") {
-                  handleNameSave();
+                  handleProfileSave();
                 }
               }}
               placeholder="이름을 입력하세요"
             />
+
+            <div className="mypage-dialog__location-block">
+              <div className="mypage-dialog__location-head">
+                <div>
+                  <p className="mypage-dialog__label">위치 설정</p>
+                  <p className="mypage-dialog__hint">현재 GPS 기준으로 날씨를 불러올 수 있어요.</p>
+                </div>
+                <button
+                  type="button"
+                  className="mypage-dialog__location-button"
+                  onClick={handleUseCurrentLocation}
+                  disabled={isLocating}
+                >
+                  {isLocating ? "가져오는 중..." : "현재 위치 사용"}
+                </button>
+              </div>
+
+              <div className="mypage-dialog__location-card">
+                <strong>{locationDraft.label}</strong>
+                <span>{locationDraft.detail}</span>
+              </div>
+
+              {locationMessage ? <p className="mypage-dialog__message">{locationMessage}</p> : null}
+              {locationError ? <p className="mypage-dialog__message is-error">{locationError}</p> : null}
+            </div>
+
             <div className="mypage-dialog__actions">
-              <button type="button" className="mypage-dialog__button is-muted" onClick={() => setIsNameEditorOpen(false)}>
+              <button type="button" className="mypage-dialog__button is-muted" onClick={() => setIsProfileEditorOpen(false)}>
                 취소
               </button>
               <button
                 type="button"
                 className="mypage-dialog__button"
-                onClick={handleNameSave}
-                disabled={!nameDraft.trim()}
+                onClick={handleProfileSave}
+                disabled={!nameDraft.trim() || isLocating}
               >
                 저장
               </button>
@@ -278,4 +443,3 @@ function MyPage({
 }
 
 export default MyPage;
-

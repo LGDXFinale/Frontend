@@ -1,4 +1,5 @@
 ﻿import { useState, useRef } from "react";
+import "./laundry.css";
 import { BackHeader, BottomNav, HeaderActions, useScrollBounce } from "../components/mobile-ui";
 
 const laundryCards = [
@@ -19,11 +20,15 @@ const laundryCards = [
   },
 ];
 
-function SmartImageCard({ src, alt, caption, cardClassName }) {
+function SmartImageCard({ src, alt, caption, cardClassName, onClick }) {
   const [hasError, setHasError] = useState(false);
+  const Tag = onClick ? "button" : "article";
 
   return (
-    <article className={`laundry-story-card ${cardClassName}`}>
+    <Tag
+      {...(onClick ? { type: "button", onClick } : {})}
+      className={`laundry-story-card ${cardClassName} ${onClick ? "laundry-story-card--button" : ""}`}
+    >
       <div className={`laundry-story-card__visual ${hasError ? "is-fallback" : ""}`}>
         {!hasError ? (
           <img src={src} alt={alt} className="laundry-story-card__image" onError={() => setHasError(true)} />
@@ -36,11 +41,11 @@ function SmartImageCard({ src, alt, caption, cardClassName }) {
       <div className="laundry-story-card__caption">
         <p>{caption}</p>
       </div>
-    </article>
+    </Tag>
   );
 }
 
-function Laundry({ profileName, onGoBack, onGoHome, onOpenDevice, onOpenCare, onOpenMenu }) {
+function Laundry({ profileName, onGoBack, onGoHome, onOpenDevice, onOpenCare, onOpenMenu, onOpenTiming }) {
   const scrollRef = useRef(null);
   const contentRef = useRef(null);
   const laundryTitle = `${profileName}의 세탁기`;
@@ -63,6 +68,7 @@ function Laundry({ profileName, onGoBack, onGoHome, onOpenDevice, onOpenCare, on
                   alt={card.fallback}
                   caption={card.title}
                   cardClassName={`laundry-story-card--${index + 1}`}
+                  onClick={index === 0 ? onOpenTiming : undefined}
                 />
               ))}
             </div>
@@ -82,3 +88,7 @@ function Laundry({ profileName, onGoBack, onGoHome, onOpenDevice, onOpenCare, on
 }
 
 export default Laundry;
+
+
+
+

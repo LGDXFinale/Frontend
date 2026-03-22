@@ -1,4 +1,5 @@
 ﻿import { useRef } from "react";
+import "./menu.css";
 import { BottomNav, useScrollBounce } from "../components/mobile-ui";
 
 const quickCards = [
@@ -151,3 +152,7 @@ function Menu({ onGoBack, onGoHome, onOpenDevice, onOpenCare, onOpenMyPage }) {
 }
 
 export default Menu;
+
+
+
+

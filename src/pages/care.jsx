@@ -1,4 +1,5 @@
 ﻿import { useRef } from "react";
+import "./care.css";
 import { BackHeader, BottomNav, HeaderActions, useScrollBounce } from "../components/mobile-ui";
 
 const energyTabs = [
@@ -21,7 +22,7 @@ function Care({ onGoBack, onGoHome, onOpenDevice, onOpenMenu }) {
 
           <section className="care-alert-strip" aria-label="케어 알림">
             <p className="care-alert-strip__warning">
-              <span className="care-alert-strip__icon" aria-hidden="true">!</span>
+              <img src="/caution.png" alt="" className="care-alert-strip__icon" />
               <span>제품 이상 진단을 발견했어요</span>
             </p>
             <div className="care-alert-strip__grid">
@@ -68,7 +69,7 @@ function Care({ onGoBack, onGoHome, onOpenDevice, onOpenMenu }) {
             <p className="care-section__eyebrow">가전 리포트</p>
             <div className="care-tab-row" role="tablist" aria-label="리포트 기기 선택">
               {energyTabs.map((tab, index) => (
-                <button key={tab.label} type="button" className={`care-tab ${index === 0 ? "is-active" : ""}`}>
+                <button key={tab.label} type="button" className={`care-tab ${index === 1 ? "is-active" : ""}`}>
                   {tab.icon ? <img src={tab.icon} alt="" className="care-tab__device-icon" /> : null}
                   <span>{tab.label}</span>
                 </button>
@@ -81,7 +82,7 @@ function Care({ onGoBack, onGoHome, onOpenDevice, onOpenMenu }) {
                 <span>지난 달 같은 기간 보다</span>
                 <span className="care-pattern-copy__emphasis">
                   <strong>6회 더 많이</strong>
-                  <em>사용중이에요</em>
+                  <em> 사용중이에요.</em>
                 </span>
               </h3>
               <div className="care-bar-group">
@@ -109,7 +110,7 @@ function Care({ onGoBack, onGoHome, onOpenDevice, onOpenMenu }) {
             <article className="care-card care-card--report">
               <p className="care-card__label">코스 정보</p>
               <h3 className="care-course-copy">
-                주로 <strong>표준 세탁 코스</strong>를 사용하시네요
+                주로 <strong>표준 세탁 코스</strong>를 사용하시네요 !
               </h3>
               <div className="care-course-chart" aria-hidden="true">
                 <span className="care-course-chart__segment care-course-chart__segment--main" />
@@ -144,3 +145,9 @@ function Care({ onGoBack, onGoHome, onOpenDevice, onOpenMenu }) {
 }
 
 export default Care;
+
+
+
+
+
+

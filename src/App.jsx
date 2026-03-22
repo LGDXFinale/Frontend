@@ -2,6 +2,7 @@
 import Start from "./pages/start";
 import Home from "./pages/home";
 import Laundry from "./pages/laundry";
+import LaundryTiming from "./pages/laundry-timing";
 import Device from "./pages/device";
 import Care from "./pages/care";
 import Menu from "./pages/menu";
@@ -11,6 +12,15 @@ import "./App.css";
 const SPLASH_DELAY_MS = 2000;
 const TRANSITION_DURATION_MS = 700;
 
+const DEFAULT_LOCATION = {
+  label: "위치 미설정",
+  detail: "마이페이지에서 현재 위치를 설정해보세요.",
+  latitude: null,
+  longitude: null,
+  source: "manual",
+  updatedAt: "",
+};
+
 function App() {
   const [phase, setPhase] = useState("start");
   const [page, setPage] = useState("home");
@@ -18,6 +28,7 @@ function App() {
   const [profileName, setProfileName] = useState("피날레");
   const [householdSize, setHouseholdSize] = useState(3);
   const [shareDeviceStatus, setShareDeviceStatus] = useState(false);
+  const [userLocation, setUserLocation] = useState(DEFAULT_LOCATION);
 
   useEffect(() => {
     const transitionTimer = window.setTimeout(() => {
@@ -85,6 +96,18 @@ function App() {
               onOpenDevice={() => goToPage("device")}
               onOpenCare={() => goToPage("care")}
               onOpenMenu={openMenu}
+              onOpenTiming={() => goToPage("laundry-timing")}
+            />
+          ) : page === "laundry-timing" ? (
+            <LaundryTiming
+              profileName={profileName}
+              householdSize={householdSize}
+              userLocation={userLocation}
+              onGoBack={goBack}
+              onGoHome={() => goToPage("home")}
+              onOpenDevice={() => goToPage("device")}
+              onOpenCare={() => goToPage("care")}
+              onOpenMenu={openMenu}
             />
           ) : page === "device" ? (
             <Device
@@ -106,7 +129,9 @@ function App() {
               profileName={profileName}
               householdSize={householdSize}
               shareDeviceStatus={shareDeviceStatus}
+              userLocation={userLocation}
               onChangeProfileName={setProfileName}
+              onChangeUserLocation={setUserLocation}
               onChangeHouseholdSize={setHouseholdSize}
               onToggleShareDeviceStatus={() => setShareDeviceStatus((current) => !current)}
               onGoBack={goBack}

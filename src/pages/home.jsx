@@ -1,4 +1,5 @@
 ﻿import { useRef } from "react";
+import "./home.css";
 import { BottomNav, HeaderActions, useScrollBounce } from "../components/mobile-ui";
 
 function Home({ profileName, onOpenLaundry, onOpenDevice, onOpenCare, onOpenMenu }) {
@@ -49,3 +50,7 @@ function Home({ profileName, onOpenLaundry, onOpenDevice, onOpenCare, onOpenMenu
 }
 
 export default Home;
+
+
+
+

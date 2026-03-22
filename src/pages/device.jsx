@@ -1,4 +1,5 @@
 ﻿import { useRef } from "react";
+import "./device.css";
 import { BackHeader, BottomNav, HeaderActions, useScrollBounce } from "../components/mobile-ui";
 
 const favoriteDevices = [
@@ -62,3 +63,7 @@ function Device({ profileName, onGoBack, onGoHome, onOpenCare, onOpenMenu }) {
 }
 
 export default Device;
+
+
+
+
