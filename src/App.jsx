@@ -13,6 +13,7 @@ import "./App.css";
 
 const SPLASH_DELAY_MS = 2000;
 const TRANSITION_DURATION_MS = 700;
+const USER_LOCATION_STORAGE_KEY = "thinq-user-location";
 
 const DEFAULT_LOCATION = {
   label: "\uC704\uCE58 \uBBF8\uC124\uC815",
@@ -23,6 +24,29 @@ const DEFAULT_LOCATION = {
   updatedAt: "",
 };
 
+function getInitialUserLocation() {
+  if (typeof window === "undefined") {
+    return DEFAULT_LOCATION;
+  }
+
+  try {
+    const storedValue = window.localStorage.getItem(USER_LOCATION_STORAGE_KEY);
+
+    if (!storedValue) {
+      return DEFAULT_LOCATION;
+    }
+
+    const parsedValue = JSON.parse(storedValue);
+
+    return {
+      ...DEFAULT_LOCATION,
+      ...parsedValue,
+    };
+  } catch {
+    return DEFAULT_LOCATION;
+  }
+}
+
 function App() {
   const [phase, setPhase] = useState("start");
   const [page, setPage] = useState("home");
@@ -32,7 +56,7 @@ function App() {
   const [profileName, setProfileName] = useState("\uD53C\uB0A0\uB808");
   const [householdSize, setHouseholdSize] = useState(3);
   const [shareDeviceStatus, setShareDeviceStatus] = useState(false);
-  const [userLocation, setUserLocation] = useState(DEFAULT_LOCATION);
+  const [userLocation, setUserLocation] = useState(getInitialUserLocation);
 
   useEffect(() => {
     const transitionTimer = window.setTimeout(() => {
@@ -77,6 +101,18 @@ function App() {
   const openMenu = () => {
     goToPage("menu");
   };
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    try {
+      window.localStorage.setItem(USER_LOCATION_STORAGE_KEY, JSON.stringify(userLocation));
+    } catch {
+      // Ignore storage errors and keep the in-memory location state.
+    }
+  }, [userLocation]);
 
   let currentPage = null;
 

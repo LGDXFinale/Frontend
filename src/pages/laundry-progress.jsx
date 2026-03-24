@@ -48,6 +48,20 @@ function buildScenario(householdSize) {
   return householdSize >= 4 ? "family4_household" : "single_household";
 }
 
+function buildWeeklyWeatherUrl(householdSize, userLocation) {
+  const params = new URLSearchParams({
+    scenario: buildScenario(householdSize),
+  });
+
+  if (Number.isFinite(userLocation?.latitude) && Number.isFinite(userLocation?.longitude)) {
+    params.set("latitude", String(userLocation.latitude));
+    params.set("longitude", String(userLocation.longitude));
+  }
+
+  const path = `/api/laundry-timing/weather/weekly?${params.toString()}`;
+  return API_BASE_URL ? `${API_BASE_URL}${path}` : path;
+}
+
 function buildRecommendationUrl(householdSize, userLocation) {
   const params = new URLSearchParams({
     scenario: buildScenario(householdSize),
@@ -118,7 +132,37 @@ function formatMinutesLabel(value) {
   return `${Math.round(value)}\uBD84`;
 }
 
-function getWeatherPresentation(recommendation) {
+function getWeatherPresentation(recommendation, todayWeather) {
+  if (todayWeather?.summary) {
+    const todaySummary = todayWeather.summary;
+    const humidity = Number(todayWeather.relative_humidity ?? 0);
+    const rainChance = Number(todayWeather.precipitation_probability ?? 0);
+
+    if (/\uB208|\uC9C4\uB208\uAE68\uBE44/.test(todaySummary)) {
+      return { src: weatherImageMap.snow, label: "\uB208" };
+    }
+
+    if (/\uCC9C\uB465|\uB1CC\uC6B0|\uBC88\uAC1C/.test(todaySummary)) {
+      return { src: weatherImageMap.thunderstorm, label: "\uCC9C\uB465\uBC88\uAC1C" };
+    }
+
+    if (/\uBC14\uB78C|\uAC15\uD48D/.test(todaySummary)) {
+      return { src: weatherImageMap.wind, label: "\uBC14\uB78C \uAC15\uD568" };
+    }
+
+    if (rainChance >= 50 || /\uBE44|\uC18C\uB098\uAE30/.test(todaySummary)) {
+      return { src: weatherImageMap.rainy, label: humidity >= 80 ? "\uBE44 / \uC2B5\uD568" : "\uBE44 \uC608\uBCF4" };
+    }
+
+    if (/\uB9D1\uC74C|\uD654\uCC3D/.test(todaySummary)) {
+      return { src: weatherImageMap.sunny, label: humidity >= 80 ? "\uB9D1\uC9C0\uB9CC \uC2B5\uD568" : "\uB9D1\uC74C" };
+    }
+
+    if (/\uAD6C\uB984|\uD750\uB9BC/.test(todaySummary)) {
+      return { src: weatherImageMap.sunCloudy, label: "\uAD6C\uB984 \uB9CE\uC74C" };
+    }
+  }
+
   if (recommendation.weather?.source === "fallback") {
     return { src: weatherImageMap.sunCloudy, label: LABELS.weatherFallback };
   }
@@ -159,6 +203,18 @@ function getWeatherPresentation(recommendation) {
   return { src: weatherImageMap.sunny, label: "\uB9D1\uC74C" };
 }
 
+function normalizeCityLabel(token) {
+  if (!token) {
+    return "";
+  }
+
+  return token
+    .replace(/특별자치시$/, "시")
+    .replace(/특별자치도$/, "도")
+    .replace(/특별시$/, "시")
+    .replace(/광역시$/, "시");
+}
+
 function extractDetailedAreaLabel(userLocation) {
   if (!userLocation) {
     return "";
@@ -167,21 +223,43 @@ function extractDetailedAreaLabel(userLocation) {
   const detail = userLocation.detail ?? "";
   const label = userLocation.label ?? "";
   const sourceText = `${label} ${detail}`;
-  const match = sourceText.match(/([\uAC00-\uD7A3]+\uAD6C)\s*([\uAC00-\uD7A30-9]+\uB3D9)?/);
+  const tokens = Array.from(
+    new Set(
+      (
+        sourceText.match(
+          /[가-힣]+(?:특별자치시|특별자치도|특별시|광역시|도|시|군|구|읍|면|동|리)/g,
+        ) ?? []
+      )
+        .map((token) => token.trim())
+        .filter(Boolean),
+    ),
+  );
 
-  if (!match) {
-    return label;
+  const cityToken = tokens.find((token) => /(?:특별자치시|특별시|광역시|시)$/.test(token));
+  const guToken = tokens.find((token) => /구$/.test(token));
+  const dongToken = tokens.find((token) => /동$/.test(token));
+  const eupMyeonToken = tokens.find((token) => /(?:읍|면)$/.test(token));
+
+  if (cityToken) {
+    const normalizedCity = normalizeCityLabel(cityToken);
+    const secondaryToken = /서울시$/.test(normalizedCity)
+      ? guToken || dongToken || eupMyeonToken
+      : dongToken || guToken || eupMyeonToken;
+
+    return secondaryToken ? `${normalizedCity} ${secondaryToken}` : normalizedCity;
   }
 
-  return [match[1], match[2]].filter(Boolean).join(" ");
+  if (guToken && dongToken) {
+    return `${guToken} ${dongToken}`;
+  }
+
+  return label;
 }
 
 function getWeatherLocationLabel(recommendation, userLocation) {
   const detailedAreaLabel = extractDetailedAreaLabel(userLocation);
 
-  if (
-    userLocation?.source === "gps"
-    && detailedAreaLabel
+  if (    detailedAreaLabel
     && detailedAreaLabel !== "\uC704\uCE58 \uBBF8\uC124\uC815"
     && detailedAreaLabel !== "\uD604\uC7AC \uC704\uCE58 \uC0AC\uC6A9 \uC911"
   ) {
@@ -226,6 +304,7 @@ function LaundryProgress({
   const scrollRef = useRef(null);
   const contentRef = useRef(null);
   const [recommendation, setRecommendation] = useState(null);
+  const [weeklyWeather, setWeeklyWeather] = useState(null);
   const [progress, setProgress] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -241,15 +320,23 @@ function LaundryProgress({
       setError("");
 
       try {
-        const recommendationResponse = await fetch(buildRecommendationUrl(householdSize, userLocation), {
-          signal: controller.signal,
-        });
+        const [recommendationResponse, weatherResponse] = await Promise.all([
+          fetch(buildRecommendationUrl(householdSize, userLocation), { signal: controller.signal }),
+          fetch(buildWeeklyWeatherUrl(householdSize, userLocation), { signal: controller.signal }).catch(() => null),
+        ]);
 
         if (!recommendationResponse.ok) {
           throw new Error(`API ${recommendationResponse.status}`);
         }
 
         const recommendationResult = await recommendationResponse.json();
+
+        if (weatherResponse?.ok) {
+          const weatherResult = await weatherResponse.json();
+          setWeeklyWeather(weatherResult);
+        } else {
+          setWeeklyWeather(null);
+        }
 
         const progressResponse = await fetch(buildProgressUrl(householdSize, recommendationResult), {
           signal: controller.signal,
@@ -279,7 +366,8 @@ function LaundryProgress({
     return () => controller.abort();
   }, [householdSize, userLocation?.latitude, userLocation?.longitude]);
 
-  const weatherPresentation = recommendation ? getWeatherPresentation(recommendation) : null;
+  const todayWeather = weeklyWeather?.days?.[0] ?? null;
+  const weatherPresentation = recommendation ? getWeatherPresentation(recommendation, todayWeather) : null;
   const weatherLocationLabel = recommendation ? getWeatherLocationLabel(recommendation, userLocation) : "";
   const heroDateLabel = progress ? formatDateLabel(progress.generated_at) : "";
   const statusLabel = progress ? washStatusLabelMap[progress.wash_status] ?? washStatusLabelMap[1] : "";
@@ -321,7 +409,7 @@ function LaundryProgress({
                       className="timing-weather-card__image"
                     />
                     <p>{weatherPresentation?.label}</p>
-                    <span className="timing-weather-card__meta">{`${weatherLocationLabel} ${LABELS.weatherBase}`}</span>
+                    <span className="timing-weather-card__meta">{weatherLocationLabel}</span>
                   </article>
 
                   <img src="/basket.png" alt={LABELS.basket} className="laundry-progress-basket" />

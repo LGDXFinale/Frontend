@@ -1,6 +1,6 @@
 ﻿import { useEffect, useEffectEvent } from "react";
 
-const MAX_BOUNCE_OFFSET = 44;
+const MAX_BOUNCE_OFFSET = 18;
 
 function IconButton({ children, label }) {
   return (
@@ -171,7 +171,7 @@ function useScrollBounce(scrollRef, contentRef) {
       window.clearTimeout(resetTimer);
       resetTimer = window.setTimeout(() => {
         setBounce(0, false);
-      }, 34);
+      }, 180);
     };
 
     const clamp = (value) => Math.max(-MAX_BOUNCE_OFFSET, Math.min(MAX_BOUNCE_OFFSET, value));
@@ -187,7 +187,7 @@ function useScrollBounce(scrollRef, contentRef) {
       }
 
       event.preventDefault();
-      setBounce(clamp(-event.deltaY * 0.16), true);
+      setBounce(clamp(-event.deltaY * 0.06), true);
       releaseBounce();
     };
 
@@ -216,7 +216,7 @@ function useScrollBounce(scrollRef, contentRef) {
       }
 
       event.preventDefault();
-      setBounce(clamp(deltaY * 0.32), true);
+      setBounce(clamp(deltaY * 0.14), true);
     };
 
     const touchEndHandler = () => {

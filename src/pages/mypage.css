@@ -424,6 +424,58 @@
   gap: 12px;
 }
 
+.mypage-dialog__location-mode {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.mypage-dialog__mode-button {
+  min-height: 38px;
+  border: 1px solid rgba(204, 212, 223, 0.96);
+  border-radius: 12px;
+  background: #f7f9fc;
+  color: #556170;
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.mypage-dialog__mode-button.is-active {
+  border-color: rgba(87, 112, 255, 0.28);
+  background: rgba(86, 113, 255, 0.12);
+  color: #4963ff;
+}
+
+.mypage-dialog__mode-button:disabled {
+  opacity: 0.55;
+}
+
+.mypage-dialog__manual-picker {
+  margin-top: 12px;
+}
+
+.mypage-dialog__label--compact {
+  margin-top: 0;
+}
+
+.mypage-dialog__select {
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px 14px;
+  border: 1px solid rgba(204, 212, 223, 0.96);
+  border-radius: 14px;
+  outline: none;
+  background: #f7f9fc;
+  color: #1b2027;
+  font-size: 0.92rem;
+}
+
+.mypage-dialog__select:focus {
+  border-color: rgba(87, 112, 255, 0.72);
+}
+
 .mypage-dialog__location-button {
   flex-shrink: 0;
   min-width: 98px;

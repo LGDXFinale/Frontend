@@ -23,6 +23,7 @@
 .timing-loading-card p {
   font-size: 1rem;
   font-weight: 700;
+  line-height: 1.2;
 }
 
 .timing-loading-card span {
@@ -97,6 +98,7 @@
   margin-top: 4px;
   font-size: 0.96rem;
   font-weight: 700;
+  line-height: 1.2;
   letter-spacing: -0.04em;
   transform: translateY(-10px);
 }
@@ -122,18 +124,19 @@
   align-content: center;
   gap: 4px;
   box-sizing: border-box;
-  width: 132px;
-  height: 132px;
-  padding: 12px 10px;
+  width: 148px;
+  height: 148px;
+  padding: 14px 12px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.72);
   text-align: center;
+  transform: translateX(-10px);
 }
 
 .timing-weather-card__image {
   display: block;
-  width: 62px;
-  height: 62px;
+  width: 66px;
+  height: 66px;
   object-fit: contain;
 }
 
@@ -152,8 +155,9 @@
 .timing-weather-card__meta {
   margin-top: -4px;
   color: #647080;
-  font-size: 0.74rem;
+  font-size: 0.76rem;
   font-weight: 700;
+  line-height: 1.2;
 }
 
 
@@ -162,7 +166,7 @@
   gap: 2px;
   justify-items: center;
   align-content: start;
-  transform: translateY(15px);
+  transform: translate(-11px, 7px);
 }
 
 .timing-pill {
@@ -181,14 +185,14 @@
   letter-spacing: -0.04em;
   white-space: nowrap;
   line-height: 1;
-  transform: translateY(10px);
+  transform: translateY(4px);
 }
 
 .timing-basket {
   display: block;
   width: 116px;
   height: 140px;
-  margin-top: -2px;
+  margin-top: -6px;
   object-fit: contain;
 }
 
@@ -453,5 +457,6 @@
   margin-top: 8px;
   text-align: center;
 }
+
 
 

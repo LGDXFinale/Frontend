@@ -6,6 +6,14 @@
   overflow: auto;
 }
 
+@media (min-width: 900px) {
+  .app {
+    place-items: center;
+    justify-items: center;
+    padding-left: 600px;
+  }
+}
+
 .stage {
   position: relative;
   width: min(100vw, 390px);
@@ -82,6 +90,8 @@
   overflow-y: auto;
   overscroll-behavior-y: contain;
   scrollbar-width: none;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 .home-scroll::-webkit-scrollbar {
@@ -93,7 +103,7 @@
   min-height: calc(100% + 180px);
   padding: 52px 22px 120px;
   transform: translateY(var(--bounce-offset));
-  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 1100ms cubic-bezier(0.12, 0.96, 0.2, 1);
   will-change: transform;
 }
 
