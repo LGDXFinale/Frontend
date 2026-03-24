@@ -59,6 +59,7 @@
 .laundry-story-card--3 .laundry-story-card__image {
   transform: none;
   transform-origin: center center;
+  object-position: center 45%;
 }
 
 .laundry-story-card__placeholder {

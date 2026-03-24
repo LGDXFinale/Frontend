@@ -1,8 +1,50 @@
-﻿import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./mypage.css";
 import { BottomNav, useScrollBounce } from "../components/mobile-ui";
 
 const householdOptions = Array.from({ length: 10 }, (_, index) => index + 1);
+
+const manualLocationOptions = [
+  { id: "mapo-seogyo", label: "\uC11C\uC6B8\uC2DC \uB9C8\uD3EC\uAD6C", detail: "\uC11C\uC6B8\uC2DC \uB9C8\uD3EC\uAD6C \uC11C\uAD50\uB3D9", latitude: 37.5552, longitude: 126.9229 },
+  { id: "seodaemun-yeonhui", label: "\uC11C\uC6B8\uC2DC \uC11C\uB300\uBB38\uAD6C", detail: "\uC11C\uC6B8\uC2DC \uC11C\uB300\uBB38\uAD6C \uC5F0\uD76C\uB3D9", latitude: 37.5734, longitude: 126.9332 },
+  { id: "hwaseong-byeongjeom", label: "\uD654\uC131\uC2DC \uBCD1\uC810\uB3D9", detail: "\uACBD\uAE30\uB3C4 \uD654\uC131\uC2DC \uBCD1\uC810\uB3D9", latitude: 37.2077, longitude: 127.0336 },
+  { id: "suwon-yeongtong", label: "\uC218\uC6D0\uC2DC \uC601\uD1B5\uAD6C", detail: "\uACBD\uAE30\uB3C4 \uC218\uC6D0\uC2DC \uC601\uD1B5\uAD6C \uC601\uD1B5\uB3D9", latitude: 37.2515, longitude: 127.071 },
+  { id: "busan-haeundae", label: "\uBD80\uC0B0\uC2DC \uD574\uC6B4\uB300\uAD6C", detail: "\uBD80\uC0B0\uC2DC \uD574\uC6B4\uB300\uAD6C \uC6B0\uB3D9", latitude: 35.1631, longitude: 129.1635 },
+  { id: "daejeon-yuseong", label: "\uB300\uC804\uC2DC \uC720\uC131\uAD6C", detail: "\uB300\uC804\uC2DC \uC720\uC131\uAD6C \uBD09\uBA85\uB3D9", latitude: 36.3551, longitude: 127.3417 },
+  { id: "jeju-ara", label: "\uC81C\uC8FC\uC2DC \uC544\uB77C\uB3D9", detail: "\uC81C\uC8FC\uC2DC \uC544\uB77C\uC77C\uB3D9", latitude: 33.4735, longitude: 126.5459 },
+];
+
+function getManualLocationOptionById(optionId) {
+  return manualLocationOptions.find((option) => option.id === optionId) ?? null;
+}
+
+function buildManualLocation(optionId) {
+  const selectedOption = getManualLocationOptionById(optionId);
+
+  if (!selectedOption) {
+    return null;
+  }
+
+  return {
+    ...selectedOption,
+    source: "manual",
+    manualId: selectedOption.id,
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+function getManualLocationOptionId(location) {
+  if (!location || location.source !== "manual") {
+    return "";
+  }
+
+  if (location.manualId && getManualLocationOptionById(location.manualId)) {
+    return location.manualId;
+  }
+
+  const matchedOption = manualLocationOptions.find((option) => option.label === location.label && option.detail === location.detail);
+  return matchedOption?.id ?? "";
+}
 
 function BackIcon() {
   return (
@@ -49,7 +91,6 @@ function formatLocationUpdatedAt(updatedAt) {
   }).format(parsedDate);
 }
 
-
 async function reverseGeocodeLocation(latitude, longitude) {
   const params = new URLSearchParams({
     format: "jsonv2",
@@ -60,10 +101,12 @@ async function reverseGeocodeLocation(latitude, longitude) {
     "accept-language": "ko",
   });
 
-  const response = await fetch(`https://nominatim.openstreetmap.org/reverse?${params.toString()}`);
+  const response = await fetch(
+    "https://nominatim.openstreetmap.org/reverse?" + params.toString(),
+  );
 
   if (!response.ok) {
-    throw new Error(`reverse geocode ${response.status}`);
+    throw new Error("reverse geocode " + response.status);
   }
 
   const result = await response.json();
@@ -77,10 +120,10 @@ async function reverseGeocodeLocation(latitude, longitude) {
         .map((token) => token.trim())
         .slice(0, 3)
         .join(" ")
-    : `위도 ${latitude.toFixed(4)}, 경도 ${longitude.toFixed(4)}`;
+    : "\uC704\uB3C4 " + latitude.toFixed(4) + ", \uACBD\uB3C4 " + longitude.toFixed(4);
 
   return {
-    label: label || "현재 위치",
+    label: label || "\uD604\uC7AC \uC704\uCE58",
     detail,
   };
 }
@@ -107,6 +150,8 @@ function MyPage({
   const [isHouseholdPickerOpen, setIsHouseholdPickerOpen] = useState(false);
   const [nameDraft, setNameDraft] = useState(profileName);
   const [locationDraft, setLocationDraft] = useState(userLocation);
+  const [locationMode, setLocationMode] = useState(userLocation?.source === "gps" ? "gps" : "manual");
+  const [selectedManualLocationId, setSelectedManualLocationId] = useState(getManualLocationOptionId(userLocation));
   const [locationMessage, setLocationMessage] = useState("");
   const [locationError, setLocationError] = useState("");
   const [isLocating, setIsLocating] = useState(false);
@@ -119,6 +164,8 @@ function MyPage({
 
   useEffect(() => {
     setLocationDraft(userLocation);
+    setLocationMode(userLocation?.source === "gps" ? "gps" : "manual");
+    setSelectedManualLocationId(getManualLocationOptionId(userLocation));
   }, [userLocation]);
 
   useEffect(() => {
@@ -142,14 +189,18 @@ function MyPage({
   const openProfileEditor = () => {
     setNameDraft(profileName);
     setLocationDraft(userLocation);
+    setLocationMode(userLocation?.source === "gps" ? "gps" : "manual");
+    setSelectedManualLocationId(getManualLocationOptionId(userLocation));
     setLocationMessage("");
     setLocationError("");
     setIsProfileEditorOpen(true);
   };
 
   const handleUseCurrentLocation = () => {
+    setLocationMode("gps");
+
     if (!("geolocation" in navigator)) {
-      setLocationError("이 브라우저에서는 위치 설정을 지원하지 않아요.");
+      setLocationError("\uC774 \uBE0C\uB77C\uC6B0\uC800\uC5D0\uC11C\uB294 \uC704\uCE58 \uC124\uC815\uC744 \uC9C0\uC6D0\uD558\uC9C0 \uC54A\uC544\uC694.");
       setLocationMessage("");
       return;
     }
@@ -174,17 +225,17 @@ function MyPage({
             source: "gps",
             updatedAt: new Date().toISOString(),
           });
-          setLocationMessage("현재 위치를 가져왔어요. 저장해주세요.");
+          setLocationMessage("\uD604\uC7AC \uC704\uCE58\uB97C \uAC00\uC838\uC654\uC5B4\uC694. \uC800\uC7A5\uD574\uC8FC\uC138\uC694.");
         } catch {
           setLocationDraft({
-            label: "현재 위치 사용 중",
-            detail: `위도 ${latitude.toFixed(4)}, 경도 ${longitude.toFixed(4)}`,
+            label: "\uD604\uC7AC \uC704\uCE58 \uC0AC\uC6A9 \uC911",
+            detail: "\uC704\uB3C4 " + latitude.toFixed(4) + ", \uACBD\uB3C4 " + longitude.toFixed(4),
             latitude,
             longitude,
             source: "gps",
             updatedAt: new Date().toISOString(),
           });
-          setLocationMessage("현재 위치를 가져왔어요. 주소 정보는 확인하지 못해 좌표로 저장해둘게요.");
+          setLocationMessage("\uD604\uC7AC \uC704\uCE58\uB97C \uAC00\uC838\uC654\uC5B4\uC694. \uC8FC\uC18C \uC815\uBCF4\uB294 \uD655\uC778\uD558\uC9C0 \uBABB\uD574 \uC88C\uD45C\uB85C \uC800\uC7A5\uD574\uB458\uAC8C\uC694.");
         } finally {
           setIsLocating(false);
         }
@@ -192,8 +243,8 @@ function MyPage({
       (error) => {
         const errorMessage =
           error.code === error.PERMISSION_DENIED
-            ? "위치 권한이 허용되지 않았어요. 권한을 확인해주세요."
-            : "위치 정보를 가져오지 못했어요. 다시 한 번 시도해주세요.";
+            ? "\uC704\uCE58 \uAD8C\uD55C\uC774 \uD5C8\uC6A9\uB418\uC9C0 \uC54A\uC558\uC5B4\uC694. \uAD8C\uD55C\uC744 \uD655\uC778\uD574\uC8FC\uC138\uC694."
+            : "\uC704\uCE58 \uC815\uBCF4\uB97C \uAC00\uC838\uC624\uC9C0 \uBABB\uD588\uC5B4\uC694. \uB2E4\uC2DC \uD55C \uBC88 \uC2DC\uB3C4\uD574\uC8FC\uC138\uC694.";
 
         setLocationError(errorMessage);
         setLocationMessage("");
@@ -207,6 +258,22 @@ function MyPage({
     );
   };
 
+  const handleManualLocationSelect = (optionId) => {
+    const nextLocation = buildManualLocation(optionId);
+
+    setLocationMode("manual");
+    setSelectedManualLocationId(optionId);
+    setLocationError("");
+
+    if (!nextLocation) {
+      setLocationMessage("");
+      return;
+    }
+
+    setLocationDraft(nextLocation);
+    setLocationMessage("\uC9C1\uC811 \uC9C0\uC815\uD55C \uC9C0\uC5ED\uC73C\uB85C \uC800\uC7A5\uD560\uAC8C\uC694.");
+  };
+
   const handleProfileSave = () => {
     const nextName = nameDraft.trim();
 
@@ -214,8 +281,12 @@ function MyPage({
       return;
     }
 
+    const nextLocation = locationMode === "manual"
+      ? buildManualLocation(selectedManualLocationId) ?? locationDraft
+      : locationDraft;
+
     onChangeProfileName(nextName);
-    onChangeUserLocation(locationDraft);
+    onChangeUserLocation(nextLocation);
     setIsProfileEditorOpen(false);
   };
 
@@ -223,15 +294,15 @@ function MyPage({
   const locationUpdatedAt = formatLocationUpdatedAt(userLocation.updatedAt);
 
   return (
-    <section className="screen mypage-screen" aria-label="마이페이지">
+    <section className="screen mypage-screen" aria-label="\uB9C8\uC774\uD398\uC774\uC9C0">
       <div className="home-scroll" ref={scrollRef}>
         <div className="home-scroll__content home-scroll__content--mypage" ref={contentRef}>
           <header className="mypage-header">
-            <button type="button" className="mypage-header__back" onClick={onGoBack} aria-label="메뉴로 돌아가기">
+            <button type="button" className="mypage-header__back" onClick={onGoBack} aria-label="\uBA54\uB274\uB85C \uB3CC\uC544\uAC00\uAE30">
               <span className="mypage-header__back-icon">
                 <BackIcon />
               </span>
-              <span>마이페이지</span>
+              <span>{"\uB9C8\uC774\uD398\uC774\uC9C0"}</span>
             </button>
           </header>
 
@@ -239,7 +310,7 @@ function MyPage({
             <div className="mypage-profile">
               <div className="mypage-avatar">
                 <span>{profileInitial}</span>
-                <button type="button" className="mypage-avatar__edit" onClick={openProfileEditor} aria-label="내 정보 수정">
+                <button type="button" className="mypage-avatar__edit" onClick={openProfileEditor} aria-label="\uB0B4 \uC815\uBCF4 \uC218\uC815">
                   <PencilIcon />
                 </button>
               </div>
@@ -247,36 +318,36 @@ function MyPage({
               <div className="mypage-profile__body">
                 <div className="mypage-profile__name-row">
                   <strong>{profileName}</strong>
-                  <button type="button" className="mypage-inline-edit" onClick={openProfileEditor} aria-label="내 정보 수정">
+                  <button type="button" className="mypage-inline-edit" onClick={openProfileEditor} aria-label="\uB0B4 \uC815\uBCF4 \uC218\uC815">
                     <PencilIcon />
                   </button>
                 </div>
                 <div className="mypage-profile__meta">
                   <p className="mypage-profile__location">{userLocation.label}</p>
                   <p className="mypage-profile__location-detail">{userLocation.detail}</p>
-                  {locationUpdatedAt ? <p className="mypage-profile__location-time">최근 설정 {locationUpdatedAt}</p> : null}
+                  {locationUpdatedAt ? <p className="mypage-profile__location-time">{"\uCD5C\uADFC \uC124\uC815 "}{locationUpdatedAt}</p> : null}
                 </div>
                 <button type="button" className="mypage-profile__button" onClick={openProfileEditor}>
-                  내 정보 수정
+                  {"\uB0B4 \uC815\uBCF4 \uC218\uC815"}
                 </button>
               </div>
             </div>
 
             <div className="mypage-membership-card">
-              <button type="button" className="mypage-membership-card__item">멤버십</button>
-              <button type="button" className="mypage-membership-card__item">가입하기</button>
-              <button type="button" className="mypage-membership-card__item">Q 리워드</button>
-              <button type="button" className="mypage-membership-card__item">가입하기</button>
+              <button type="button" className="mypage-membership-card__item">{"\uBA64\uBC84\uC2ED"}</button>
+              <button type="button" className="mypage-membership-card__item">{"\uAC00\uC785\uD558\uAE30"}</button>
+              <button type="button" className="mypage-membership-card__item">{"Q \uB9AC\uC6CC\uB4DC"}</button>
+              <button type="button" className="mypage-membership-card__item">{"\uAC00\uC785\uD558\uAE30"}</button>
             </div>
           </section>
 
           <section className="mypage-section">
-            <h2 className="mypage-section__title">가족 설정</h2>
+            <h2 className="mypage-section__title">{"\uAC00\uC871 \uC124\uC815"}</h2>
             <div className="mypage-card">
               <button type="button" className="mypage-row" onClick={() => setIsHouseholdPickerOpen(true)}>
-                <span>가구원 수 설정하기</span>
+                <span>{"\uAC00\uAD6C\uC6D0 \uC218 \uC124\uC815\uD558\uAE30"}</span>
                 <span className="mypage-row__action">
-                  <span className="mypage-row__meta">{householdSize}명</span>
+                  <span className="mypage-row__meta">{householdSize}{"\uBA85"}</span>
                   <span className="mypage-row__icon">
                     <PencilIcon />
                   </span>
@@ -290,8 +361,10 @@ function MyPage({
                 aria-checked={shareDeviceStatus}
                 onClick={onToggleShareDeviceStatus}
               >
-                <span>가전 상태 공유 알림</span>
-                <span className={`mypage-switch ${shareDeviceStatus ? "is-on" : "is-off"}`}>
+                <span>{"\uAC00\uC804 \uC0C1\uD0DC \uACF5\uC720 \uC54C\uB9BC"}</span>
+                <span className={
+                  "mypage-switch " + (shareDeviceStatus ? "is-on" : "is-off")
+                }>
                   <span className="mypage-switch__thumb" />
                 </span>
               </button>
@@ -299,11 +372,11 @@ function MyPage({
           </section>
 
           <section className="mypage-section">
-            <h2 className="mypage-section__title">제품 정보와 보증</h2>
+            <h2 className="mypage-section__title">{"\uC81C\uD488 \uC815\uBCF4\uC640 \uBCF4\uC99D"}</h2>
             <div className="mypage-card mypage-card--info">
-              <p className="mypage-card__copy">보증 기간 내의 제품이 없어요.</p>
+              <p className="mypage-card__copy">{"\uBCF4\uC99D \uAE30\uAC04 \uB0B4\uC758 \uC81C\uD488\uC774 \uC5C6\uC5B4\uC694."}</p>
               <button type="button" className="mypage-link-row">
-                <span>전체 제품 보기</span>
+                <span>{"\uC804\uCCB4 \uC81C\uD488 \uBCF4\uAE30"}</span>
                 <span className="mypage-link-row__icon">
                   <ChevronIcon />
                 </span>
@@ -312,10 +385,10 @@ function MyPage({
           </section>
 
           <section className="mypage-section">
-            <h2 className="mypage-section__title">서비스 예약</h2>
+            <h2 className="mypage-section__title">{"\uC11C\uBE44\uC2A4 \uC608\uC57D"}</h2>
             <div className="mypage-card mypage-card--service">
               <button type="button" className="mypage-link-row">
-                <span>전체 예약 보기</span>
+                <span>{"\uC804\uCCB4 \uC608\uC57D \uBCF4\uAE30"}</span>
                 <span className="mypage-link-row__icon">
                   <ChevronIcon />
                 </span>
@@ -324,7 +397,9 @@ function MyPage({
           </section>
 
           <p className="mypage-footnote">
-            혹시 LGE.COM에서 구매한 상품이 있다면 <button type="button">여기</button>를 눌러 내 주문내역을 확인해보세요.
+            {"\uD639\uC2DC LGE.COM\uC5D0\uC11C \uAD6C\uB9E4\uD55C \uC0C1\uD488\uC774 \uC788\uB2E4\uBA74 "}
+            <button type="button">{"\uC5EC\uAE30"}</button>
+            {"\uB97C \uB20C\uB7EC \uB0B4 \uC8FC\uBB38\uB0B4\uC5ED\uC744 \uD655\uC778\uD574\uBCF4\uC138\uC694."}
           </p>
         </div>
       </div>
@@ -335,12 +410,12 @@ function MyPage({
             className="mypage-dialog"
             role="dialog"
             aria-modal="true"
-            aria-label="내 정보 수정"
+            aria-label="\uB0B4 \uC815\uBCF4 \uC218\uC815"
             onClick={(event) => event.stopPropagation()}
           >
-            <p className="mypage-dialog__title">내 정보 수정</p>
+            <p className="mypage-dialog__title">{"\uB0B4 \uC815\uBCF4 \uC218\uC815"}</p>
 
-            <label className="mypage-dialog__label" htmlFor="mypage-name-input">이름</label>
+            <label className="mypage-dialog__label" htmlFor="mypage-name-input">{"\uC774\uB984"}</label>
             <input
               id="mypage-name-input"
               className="mypage-dialog__input"
@@ -353,24 +428,61 @@ function MyPage({
                   handleProfileSave();
                 }
               }}
-              placeholder="이름을 입력하세요"
+              placeholder={"이름을 입력하세요"}
             />
 
             <div className="mypage-dialog__location-block">
               <div className="mypage-dialog__location-head">
                 <div>
-                  <p className="mypage-dialog__label">위치 설정</p>
-                  <p className="mypage-dialog__hint">현재 GPS 기준으로 날씨를 불러올 수 있어요.</p>
+                  <p className="mypage-dialog__label">{"\uC704\uCE58 \uC124\uC815"}</p>
+                  <p className="mypage-dialog__hint">{"\uD604\uC7AC GPS \uAE30\uC900\uC73C\uB85C \uB0A0\uC528\uB97C \uBD88\uB7EC\uC624\uAC70\uB098, \uC6D0\uD558\uB294 \uC9C0\uC5ED\uC744 \uC9C1\uC811 \uACE8\uB77C\uBCFC \uC218 \uC788\uC5B4\uC694."}</p>
                 </div>
+              </div>
+
+              <div className="mypage-dialog__location-mode">
                 <button
                   type="button"
-                  className="mypage-dialog__location-button"
+                  className={"mypage-dialog__mode-button " + (locationMode === "gps" ? "is-active" : "")}
                   onClick={handleUseCurrentLocation}
                   disabled={isLocating}
                 >
-                  {isLocating ? "가져오는 중..." : "현재 위치 사용"}
+                  {isLocating ? "\uAC00\uC838\uC624\uB294 \uC911..." : "\uD604\uC7AC \uC704\uCE58 \uC0AC\uC6A9"}
+                </button>
+                <button
+                  type="button"
+                  className={"mypage-dialog__mode-button " + (locationMode === "manual" ? "is-active" : "")}
+                  onClick={() => {
+                    setLocationMode("manual");
+                    setLocationError("");
+                    setLocationMessage("");
+
+                    if (!selectedManualLocationId) {
+                      handleManualLocationSelect(manualLocationOptions[0].id);
+                    }
+                  }}
+                >
+                  {"\uC9C0\uC5ED \uC9C1\uC811 \uC9C0\uC815"}
                 </button>
               </div>
+
+              {locationMode === "manual" ? (
+                <div className="mypage-dialog__manual-picker">
+                  <label className="mypage-dialog__label mypage-dialog__label--compact" htmlFor="mypage-location-select">{"\uC9C0\uC5ED \uC120\uD0DD"}</label>
+                  <select
+                    id="mypage-location-select"
+                    className="mypage-dialog__select"
+                    value={selectedManualLocationId}
+                    onChange={(event) => handleManualLocationSelect(event.target.value)}
+                  >
+                    <option value="" disabled>{"\uC9C0\uC5ED\uC744 \uC120\uD0DD\uD558\uC138\uC694"}</option>
+                    {manualLocationOptions.map((option) => (
+                      <option key={option.id} value={option.id}>
+                        {option.label}{" - "}{option.detail}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : null}
 
               <div className="mypage-dialog__location-card">
                 <strong>{locationDraft.label}</strong>
@@ -383,15 +495,15 @@ function MyPage({
 
             <div className="mypage-dialog__actions">
               <button type="button" className="mypage-dialog__button is-muted" onClick={() => setIsProfileEditorOpen(false)}>
-                취소
+                {"\uCDE8\uC18C"}
               </button>
               <button
                 type="button"
                 className="mypage-dialog__button"
                 onClick={handleProfileSave}
-                disabled={!nameDraft.trim() || isLocating}
+                disabled={!nameDraft.trim() || isLocating || (locationMode === "manual" && !selectedManualLocationId)}
               >
-                저장
+                {"\uC800\uC7A5"}
               </button>
             </div>
           </div>
@@ -404,12 +516,12 @@ function MyPage({
             className="mypage-sheet"
             role="dialog"
             aria-modal="true"
-            aria-label="가구원 수 설정"
+            aria-label="\uAC00\uAD6C\uC6D0 \uC218 \uC124\uC815"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="mypage-sheet__handle" aria-hidden="true" />
-            <p className="mypage-sheet__title">가구원 수 설정</p>
-            <div className="mypage-picker" aria-label="가구원 수 선택">
+            <p className="mypage-sheet__title">{"\uAC00\uAD6C\uC6D0 \uC218 \uC124\uC815"}</p>
+            <div className="mypage-picker" aria-label="\uAC00\uAD6C\uC6D0 \uC218 \uC120\uD0DD">
               {householdOptions.map((count, index) => (
                 <button
                   key={count}
@@ -417,13 +529,13 @@ function MyPage({
                   ref={(element) => {
                     pickerRefs.current[index] = element;
                   }}
-                  className={`mypage-picker__item ${householdSize === count ? "is-selected" : ""}`}
+                  className={"mypage-picker__item " + (householdSize === count ? "is-selected" : "")}
                   onClick={() => {
                     onChangeHouseholdSize(count);
                     setIsHouseholdPickerOpen(false);
                   }}
                 >
-                  {count}명
+                  {count}{"\uBA85"}
                 </button>
               ))}
             </div>

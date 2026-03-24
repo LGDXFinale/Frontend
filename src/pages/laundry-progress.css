@@ -34,6 +34,7 @@
   height: 146px;
   margin-top: 38px;
   object-fit: contain;
+  transform: translateX(-7px) translateY(-10px);
 }
 
 .laundry-progress-summary-card {
