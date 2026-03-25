@@ -10,7 +10,7 @@
   .app {
     place-items: center;
     justify-items: center;
-    padding-left: 600px;
+    padding-left: 0;
   }
 }
 
@@ -20,6 +20,12 @@
   height: min(100dvh, 844px);
   overflow: hidden;
   background:`r`n    radial-gradient(circle at 78% 92%, rgba(179, 244, 229, 0.45), transparent 28%),`r`n    linear-gradient(180deg, #d0e2f4 0%, #d7e7f3 38%, #e7f0f1 66%, #d7f1ed 100%);
+  transition: opacity 240ms ease;
+}
+
+.stage.is-preview-hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .screen-layer {

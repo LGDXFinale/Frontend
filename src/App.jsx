@@ -14,6 +14,7 @@ import "./App.css";
 const SPLASH_DELAY_MS = 2000;
 const TRANSITION_DURATION_MS = 700;
 const USER_LOCATION_STORAGE_KEY = "thinq-user-location";
+const APP_PREVIEW_HIDDEN = false;
 
 const DEFAULT_LOCATION = {
   label: "\uC704\uCE58 \uBBF8\uC124\uC815",
@@ -230,7 +231,7 @@ function App() {
 
   return (
     <main className="app">
-      <div className="stage">
+      <div className={`stage ${APP_PREVIEW_HIDDEN ? "is-preview-hidden" : ""}`.trim()}>
         <div
           className={`screen-layer splash-layer ${
             phase === "transition"
